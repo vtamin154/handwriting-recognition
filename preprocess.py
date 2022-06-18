@@ -1,13 +1,17 @@
-from operator import le
 import cv2
 from cv2 import resize
 import numpy as np
+
 
 class PreProcess:
     def __init__(self, filename):
         self.filename = filename
 
     def binaryImage(self):
+        # convert rgb image to gray
+        # img = cv2.imread(self.filename)
+        # bw_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
         img = cv2.imread(self.filename, 2)
         ret, bw_img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
         cv2.imwrite('binary.png', bw_img)
@@ -124,4 +128,5 @@ class PreProcess:
     def resizeImg(self):
         img = cv2.imread('crop_img.png', 2)
         imgResize = resize(img, (32, 32))
+        print(imgResize.shape)
         cv2.imwrite('resize_img.png', imgResize)

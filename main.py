@@ -1,9 +1,12 @@
 from tkinter import *
 from tkinter import filedialog
+from unittest import result
 from PIL import Image, ImageTk
-from numpy import imag
 from preprocess import *
+from hog import *
 import cv2
+import csv
+from recognition import Recognition
 
 
 class Root(Tk):
@@ -11,13 +14,23 @@ class Root(Tk):
         super(Root, self).__init__()
         self.title("Handwriting recognition")
         self.minsize(800, 600)
+
         self.labelFrame = LabelFrame(text="Open File")
         self.labelFrame.grid(column=0, row=1, padx=20, pady=20)
+
+        self.entryLetter = Entry(self, font=('Arial', 20), show="")
+        self.entryLetter.grid(column=1, row=1, padx=20, pady=20)
+
+        self.addSample = Button(self, text="Add sample",
+                                command=self.extractFeatures)
+        self.addSample.grid(column=2, row=1, padx=10, pady=20)
+
         self.openFileBtn()
         self.rgbToBinBtn()
         # self.thinImgBtn()
         self.cropImgBtn()
         self.resizeImgBtn()
+        self.recognitionBtn()
         self.exitBtn()
 
     def openFileBtn(self):
@@ -25,10 +38,27 @@ class Root(Tk):
             self.labelFrame, text="Browse A File", command=self.fileDialog, width=30)
         self.btn_open_file.grid(column=1, row=1)
 
+    def fileDialog(self):
+        self.filename = filedialog.askopenfilename(
+            initialdir="/", title="Select A File", filetype=(("jpeg files", "*.jpg"), ("all files", "*.*")))
+        self.label = Label(self.labelFrame, text="")
+        self.label.grid(column=1, row=0)
+        self.label.configure(text=self.filename)
+
+        self.type_img = Label(self, text="Original Image")
+        self.type_img.grid(column=0, row=3)
+
+        img = Image.open(self.filename)
+        photo = ImageTk.PhotoImage(img)
+
+        self.label_img = Label(self, image=photo)
+        self.label_img.image = photo
+        self.label_img.grid(column=0, row=4)
+
     def exitBtn(self):
         self.btn_exit = Button(
             self.labelFrame, text="Exit", command=exit, width=30)
-        self.btn_exit.grid(column=1, row=6)
+        self.btn_exit.grid(column=1, row=7)
 
     def rgbToBinBtn(self):
 
@@ -103,22 +133,30 @@ class Root(Tk):
         self.label_img_resize.image = photo
         self.label_img_resize.grid(column=5, row=4)
 
-    def fileDialog(self):
-        self.filename = filedialog.askopenfilename(
-            initialdir="/", title="Select A File", filetype=(("jpeg files", "*.jpg"), ("all files", "*.*")))
-        self.label = Label(self.labelFrame, text="")
-        self.label.grid(column=1, row=0)
-        self.label.configure(text=self.filename)
+    def recognitionBtn(self):
+        self.btn_result = Button(
+            self.labelFrame, text="Recognition", command=self.recognition, width=30)
+        self.btn_result.grid(column=1, row=6)
 
-        self.type_img = Label(self, text="Original Image")
-        self.type_img.grid(column=0, row=3)
+    def recognition(self):
+        recog = Recognition()
+        result = recog.recognition()
 
-        img = Image.open(self.filename)
-        photo = ImageTk.PhotoImage(img)
+        print(result[0][1])
+        self.label_result = Label(
+            self, text="Result: " + result[0][1], font=('Arial', 20))
+        self.label_result.grid(column=0, row=6)
 
-        self.label_img = Label(self, image=photo)
-        self.label_img.image = photo
-        self.label_img.grid(column=0, row=4)
+    def extractFeatures(self):
+        hog_img = Hog()
+        letter = self.entryLetter.get()
+        data = hog_img.extractFeature('resize_img.png')
+
+        with open('data.csv', 'a', newline='') as datacsv:
+            writer = csv.writer(datacsv, dialect='excel')
+            output_row = [letter]
+            output_row.extend(data)
+            writer.writerow(output_row)
 
 
 root = Root()
