@@ -1,9 +1,5 @@
 from cv2 import imread, imshow
 import numpy as np
-# from skimage.io import imread, imshow
-# from skimage.feature import hog
-# import matplotlib.pyplot as plt
-# from skimage import exposure
 from scipy import signal
 import csv
 
@@ -15,19 +11,13 @@ class Hog:
 
     def extractFeature(self, filename):
         img = imread(filename, 2)
-        # # print(img.shape)
-
-        # fd, hog_image = hog(img, orientations=9, pixels_per_cell=(8, 8), cells_per_block=(2,2), visualize=True)
-        # fig, (ax1, ax2) = plt.subplots(1,2, figsize = (16,8), sharex=True, sharey=True)
-
-        # image = imshow("hog",hog_image)
 
         def hog(img):
-
             cell_size = 8 # kích thước cell - pixel
             block_size = 2 # kích thước khối block
             bins = 9 # số chiều vector
 
+            # chuẩn hóa vector
             def normalize(v):
                 max_value = max(v)
                 min_value = min(v)
@@ -71,7 +61,7 @@ class Hog:
             num_cell_x = width // cell_size # 
             num_cell_y = height // cell_size 
 
-            print("num cell x", num_cell_x, num_cell_y)
+            # print("num cell x", num_cell_x, num_cell_y)
 
             histogram = np.zeros([num_cell_y, num_cell_x, bins])
             for x in range(num_cell_x):
@@ -105,19 +95,6 @@ class Hog:
 
                     if np.isnan(features[y, x, :]).any():
                         features[y, x :] = v
-            # print(normalize(features.flatten()))
-            # file = open('data.csv', "a", newline="") # a - append newline
-            # data = features.flatten()
-            # writer = csv.writer(file)
-            # writer.writerow(data)
-            # file.close()
-
-            # data = features.flatten()
-            # with open('data.csv', 'a', newline='') as datacsv:
-            #     writer = csv.writer(datacsv, dialect='excel')
-            #     output_row = [letter]
-            #     output_row.extend(data)
-            #     writer.writerow(output_row)
 
             return normalize(features.flatten())
         features = hog(img)
