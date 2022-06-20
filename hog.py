@@ -95,7 +95,7 @@ class Hog:
 
                     if np.isnan(features[y, x, :]).any():
                         features[y, x :] = v
-
+            print(features.flatten())
             return normalize(features.flatten())
         features = hog(img)
         return features

@@ -56,6 +56,7 @@ class Root(Tk):
         self.label_img_bin.configure(image='')
         self.label_img_crop.configure(image='')
         self.label_img_resize.configure(image='')
+        self.label_result.configure(text='')
         # self.label_img_bin.configure(image='')
 
     def exitBtn(self):
@@ -155,7 +156,7 @@ class Root(Tk):
         letter = self.entryLetter.get()
         data = hog_img.extractFeature('resize_img.png')
 
-        with open('data.csv', 'a', newline='') as datacsv:
+        with open('data.csv', 'a+', newline='') as datacsv:
             writer = csv.writer(datacsv, dialect='excel')
             output_row = [letter]
             output_row.extend(data)
